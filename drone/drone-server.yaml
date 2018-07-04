@@ -1,0 +1,103 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    deployment.kubernetes.io/revision: "1"
+  creationTimestamp: null
+  generation: 1
+  labels:
+    app: drone
+    chart: drone-1.4.0
+    component: server
+    heritage: Tiller
+    release: drone
+  name: drone-drone-server
+  selfLink: /apis/extensions/v1beta1/namespaces/drone/deployments/drone-drone-server
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: drone
+      component: server
+      release: drone
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        checksum/secrets: da0e915de270ffa29f7a60f2b3f3b8f64a682d709913dfc945a936b833addf54
+      creationTimestamp: null
+      labels:
+        app: drone
+        component: server
+        release: drone
+    spec:
+      containers:
+      - env:
+        - name: DRONE_SECRET
+          valueFrom:
+            secretKeyRef:
+              key: secret
+              name: drone-drone
+        - name: DRONE_HOST
+          value: https://drone.test.dtait.com
+        - name: DRONE_ADMIN
+          value: dtait
+        - name: DRONE_DATABASE_DATASOURCE
+          value: /var/lib/drone/drone.sqlite
+        - name: DRONE_DATABASE_DRIVER
+          value: sqlite3
+        - name: DRONE_DEBUG
+          value: "false"
+        - name: DRONE_GITHUB
+          value: "true"
+        - name: DRONE_GITHUB_CLIENT
+          value: 0984bb68b82136693c68
+        - name: DRONE_GITHUB_SECRET
+          value: daee56ce30424a398f9a6d3dc798f0243dd2802c
+        - name: DRONE_OPEN
+          value: "true"
+        - name: DRONE_PROVIDER
+          value: github
+        image: docker.io/drone/drone:0.8.5
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+        name: drone-drone-server
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        - containerPort: 9000
+          name: grpc
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/lib/drone
+          name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      serviceAccount: drone-drone
+      serviceAccountName: drone-drone
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: drone-drone
+status: {}

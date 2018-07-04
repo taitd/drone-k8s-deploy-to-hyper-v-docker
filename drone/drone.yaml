@@ -1,0 +1,21 @@
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: 'true'
+  hosts:
+    - drone.test.dtait.com
+  tls:
+    - secretName: drone-tls
+      hosts:
+        - drone.test.dtait.com
+
+server:
+  host: "https://drone.test.dtait.com"
+  env:
+    DRONE_ADMIN: dtait
+    DRONE_PROVIDER: "github"
+    DRONE_OPEN: "true"
+    DRONE_GITHUB: "true"
+    DRONE_GITHUB_CLIENT: "0984bb68b82136693c68"
+    DRONE_GITHUB_SECRET: "daee56ce30424a398f9a6d3dc798f0243dd2802c"
